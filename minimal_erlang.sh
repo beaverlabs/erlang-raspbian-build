@@ -101,30 +101,6 @@ for SE_DIR in erts* lib/*; do
 done
 rm -rf erts-*/lib/
 
-# 7. Compress .ez archives (without priv!)
-cd lib
-SE_LIBS=$(ls)
-
-for SE_APP in $SE_LIBS; do
-    if [ "${SE_APP##*.}" == "ez" ]; then
-        echo "Skipping $SE_APP, already compressed"
-    else
-        echo "Compressing $SE_APP"
-        # Skip priv directories, they need to exist on disk
-        zip -0 -q -r ${SE_APP}.zip $SE_APP -x $SE_APP/priv/\*
-        mv ${SE_APP}.zip ${SE_APP}.ez
-        if [ ! -d $SE_APP/priv ]; then
-            rm -f -r $SE_APP
-        else
-            mv ${SE_APP}/priv ${SE_APP}_priv
-            rm -f -r $SE_APP
-            mkdir -p $SE_APP
-            mv ${SE_APP}_priv ${SE_APP}/priv
-        fi
-    fi
-done
-cd ..
-
 # 9. Create installation archive
 cd ../..
 SE_TARBALL_PREFIX=minimal_erlang_$SE_OTP_SOURCE_DIR_NAME_$SE_TIMESTAMP
