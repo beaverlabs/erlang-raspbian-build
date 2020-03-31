@@ -1,19 +1,17 @@
-Bash script for creating a small Erlang release.
+# Erlang Cross-Compiled Build Script for Raspberry Pi
+
+Bash script for creating a small Erlang release targeting Raspberry Pi (armhf).
+The goal is to keep the package as small as possible by stripping the release of
+unnecessary things.
+
+This relies on cross-compilation to target armhf, allowing the build script to
+be run on a x86 development machine for example.
 
 Example:
 
-wget http://www.erlang.org/download/otp_src_R15B03-1.tar.gz
-./minimal_erlang.sh -s -e otp_src_R15B03-1.tar.gz
+`$ ./minimal_erlang.sh 22.3`
 
-Notes:
-The script will unpack the Erlang/OTP tarball and build a Erlang release
-from source. You may want to have checked that the build configuration step
-works before running the script. 
-See chapter 3.5 in http://www.erlang.org/doc/installation_guide/INSTALL.html
+The script will download and unpack the Erlang/OTP source tarball and build a
+Erlang release from source. It will then build a basic Debian package for installation.
 
-To speed things up:
-export MAKEFLAGS=-jX
-where X is number of logical cores + 2.
-
-You can also manually remove unneeded OTP apps in the lib folder in the created
-release directory.
+See http://www.erlang.org/doc/installation_guide/INSTALL.html
