@@ -118,3 +118,6 @@ ln -s ../lib/erlang/bin/start $SE_DEB_PREFIX/usr/bin/start_embedded
 ln -s ../lib/erlang/bin/to_erl $SE_DEB_PREFIX/usr/bin/to_erl
 
 dpkg-deb --build $SE_DEB_PREFIX
+rm -rf $SE_DEB_PREFIX
+
+echo "Done."
