@@ -1,67 +1,43 @@
 #!/bin/bash
-#
-
-# All variables used in the script should be prefixed with "SE_"
-# Some of these are changed while parsing getopts.
-SE_DO_BUILD=unset
-SE_ERLANG_SOURCE_FILE=unset
-SE_RELEASE_DIR=stripped_release
 
 set -e
 
-# Internal functions
-usage()
-{
-    cat<<EOF
-Usage: [options]
-
-Available options:
-    -e <Erlang src>    Set the Erlang source tarball used for building
-    -d                 Optional, keeps the temp build directory.
-                       Useful for debugging the script.
-EOF
-exit
-}
-
-# Begin script execution
-# 1. Parse options
-if ( ! getopts ":a:" opt); then
-    usage
-    exit 1
+if [ -z "$1" ]
+then
+  echo "usage: ./minimal_erlang.sh <release>"
+  exit 1;
 fi
 
-while getopts ":a:b:e:sd" Option
-do
-    case $Option in
-        e )
-            SE_ERLANG_SOURCE_FILE=${OPTARG}
-            SE_DO_BUILD=yes
-            ;;
-        d )
-            SE_DEBUG_ENABLED=true
-            ;;
-        * ) usage
-            exit 1
-            ;;
-    esac
-done
+# 1. Download the erlang source code
+SE_ERLANG_RELEASE=$1
+SE_RELEASE_DIR=$SE_ERLANG_RELEASE
+SE_ERLANG_SOURCE_FILE="/tmp/otp_src_$SE_ERLANG_RELEASE.tar.gz"
+SE_DO_BUILD=yes
+SE_DEBUG_ENABLED=true
+
+if [ -f "$SE_ERLANG_SOURCE_FILE" ]
+then
+  EXPECTED_MD5SUM=$(curl -s http://erlang.org/download/MD5 | grep "^MD5(otp_src_22.3.tar.gz)=" | awk -F =  '{gsub(/ /, "", $2); print$2}')
+  ACTUAL_MD5SUM=$(md5sum $SE_ERLANG_SOURCE_FILE | awk '{print$1}')
+
+  if [[ "$EXPECTED_MD5SUM" == "$ACTUAL_MD5SUM" ]]
+  then
+    echo "$SE_ERLANG_SOURCE_FILE exists, not downloading"
+  else
+    echo "$SE_ERLANG_SOURCE_FILE exists but has wrong checksum! Actual: $ACTUAL_MD5SUM Expected: $EXPECTED_MD5SUM"
+    exit 1
+  fi
+else
+  wget -O $SE_ERLANG_SOURCE_FILE "http://erlang.org/download/otp_src_$SE_ERLANG_RELEASE.tar.gz"
+fi
 
 # 2. Create a directory for building and configuration of Erlang release and unpack source.
-if [ "$SE_DO_BUILD" == yes ]
-then
-    if [ "$SE_ERLANG_SOURCE_FILE" == unset ]
-    then
-        echo "A build requires an Erlang source tarball, set it with -e <file>"
-        echo "Download one with 'wget http://www.erlang.org/download/otp_src_R14B04.tar.gz'"
-        exit 1
-    fi
-    SE_TIMESTAMP=`date +%F_%H%M%S`
-    SE_BUILD_DIR=stripped_erlang_$SE_TIMESTAMP
-    echo "Making build dir ${SE_BUILD_DIR}"
-    mkdir $SE_BUILD_DIR
-    echo "Unpacking source and moving into dir.."
-    tar xfz $SE_ERLANG_SOURCE_FILE -C $SE_BUILD_DIR
-fi
+SE_TIMESTAMP=`date +%F_%H%M%S`
+SE_BUILD_DIR=stripped_erlang_$SE_TIMESTAMP
+echo "Making build dir ${SE_BUILD_DIR}"
+mkdir $SE_BUILD_DIR
+echo "Unpacking source and moving into dir.."
+tar xfz $SE_ERLANG_SOURCE_FILE -C $SE_BUILD_DIR
 
 # 3. Enter directory and build the source.
 SE_OTP_SOURCE_DIR_NAME=`tar -tf ${SE_ERLANG_SOURCE_FILE} | grep -o '^[^/]\+' | sort -u`
