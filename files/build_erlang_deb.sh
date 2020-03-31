@@ -1,10 +1,11 @@
 #!/bin/bash
 
+# Forked from https://github.com/Gustav-Simonsson/Stripped-Erlang
+
 set -e
 
-if [ -z "$1" ]
-then
-  echo "usage: ./minimal_erlang.sh <release>"
+if [[ -z "$1" ]]; then
+  echo "usage: ./build_erlang_deb.sh <release>"
   exit 1;
 fi
 
@@ -12,15 +13,12 @@ fi
 SE_ERLANG_RELEASE=$1
 SE_RELEASE_DIR=erlang-$SE_ERLANG_RELEASE
 SE_ERLANG_SOURCE_FILE="/tmp/otp_src_$SE_ERLANG_RELEASE.tar.gz"
-SE_DO_BUILD=yes
 
-if [ -f "$SE_ERLANG_SOURCE_FILE" ]
-then
+if [[ -f "$SE_ERLANG_SOURCE_FILE" ]]; then
   EXPECTED_MD5SUM=$(curl -s http://erlang.org/download/MD5 | grep "^MD5(otp_src_22.3.tar.gz)=" | awk -F =  '{gsub(/ /, "", $2); print$2}')
   ACTUAL_MD5SUM=$(md5sum $SE_ERLANG_SOURCE_FILE | awk '{print$1}')
 
-  if [[ "$EXPECTED_MD5SUM" == "$ACTUAL_MD5SUM" ]]
-  then
+  if [[ "$EXPECTED_MD5SUM" == "$ACTUAL_MD5SUM" ]]; then
     echo "$SE_ERLANG_SOURCE_FILE exists, not downloading"
   else
     echo "$SE_ERLANG_SOURCE_FILE exists but has wrong checksum! Actual: $ACTUAL_MD5SUM Expected: $EXPECTED_MD5SUM"
