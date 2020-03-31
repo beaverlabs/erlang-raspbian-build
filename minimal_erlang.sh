@@ -10,10 +10,9 @@ fi
 
 # 1. Download the erlang source code
 SE_ERLANG_RELEASE=$1
-SE_RELEASE_DIR=$SE_ERLANG_RELEASE
+SE_RELEASE_DIR=erlang-$SE_ERLANG_RELEASE
 SE_ERLANG_SOURCE_FILE="/tmp/otp_src_$SE_ERLANG_RELEASE.tar.gz"
 SE_DO_BUILD=yes
-SE_DEBUG_ENABLED=true
 
 if [ -f "$SE_ERLANG_SOURCE_FILE" ]
 then
@@ -76,31 +75,46 @@ for SE_DIR in erts* lib/*; do
     rm -rf ${SE_DIR}/c_src
 done
 rm -rf erts-*/lib/
+echo "Build ready."
 
-# 9. Create installation archive
+# 9. Create .deb package
+
 cd ../..
-SE_TARBALL_PREFIX=minimal_erlang_$SE_OTP_SOURCE_DIR_NAME_$SE_TIMESTAMP
-mkdir $SE_TARBALL_PREFIX
-cp -r $SE_BUILD_DIR/$SE_RELEASE_DIR $SE_TARBALL_PREFIX/
-echo "
+SE_DEB_PREFIX=erlang_$SE_ERLANG_RELEASE-1_armhf
+mkdir -p $SE_DEB_PREFIX/usr/lib/erlang
+mkdir -p $SE_DEB_PREFIX/usr/bin
+mkdir -p $SE_DEB_PREFIX/DEBIAN
+cp -r $SE_BUILD_DIR/$SE_RELEASE_DIR/* $SE_DEB_PREFIX/usr/lib/erlang
+rm -rf $SE_BUILD_DIR
 
-Installation:
+tee $SE_DEB_PREFIX/DEBIAN/control <<EOF
+Package: erlang
+Version: 1:$SE_ERLANG_RELEASE-1
+Section: interpreters
+Priority: optional
+Architecture: armhf
+Maintainer: Beaverlabs Team <support@beaverlabs.net>
+Description: Erlang OTP $SE_ERLANG_RELEASE for Raspbian
+EOF
 
-1. Unpack archive.
-2. ./Install -minimal
-
-" >> $SE_TARBALL_PREFIX/README
-
-tar czf $SE_TARBALL_PREFIX.tar.gz $SE_TARBALL_PREFIX
-
-if [ "$SE_DEBUG_ENABLED" != yes ]
-then
-    rm -rf $SE_BUILD_DIR
+tee $SE_DEB_PREFIX/DEBIAN/postinst <<EOF
+#!/bin/sh
+set -e
+if [ "$1" = "configure" ]; then
+  /usr/lib/erlang/Install -sasl /usr/lib/erlang
+  rm /usr/lib/erlang/Install
 fi
+EOF
 
-echo "Done. Check README in $SE_TARBALL_PREFIX folder/tarball."
+chmod +x $SE_DEB_PREFIX/DEBIAN/postinst
 
-# TODO (on target system):
-# 1. Unpack archive at preffered location (this will be $ERL_ROOT)
-# 2. Run $ERL_ROOT/Install -minimal 
+ln -s ../lib/erlang/bin/epmd $SE_DEB_PREFIX/usr/bin/epmd
+ln -s ../lib/erlang/bin/erl $SE_DEB_PREFIX/usr/bin/erl
+ln -s ../lib/erlang/bin/erlc $SE_DEB_PREFIX/usr/bin/erlc
+ln -s ../lib/erlang/lib/erl_interface-3.13.2/bin/erl_call $SE_DEB_PREFIX/usr/bin/erl_call
+ln -s ../lib/erlang/bin/escript $SE_DEB_PREFIX/usr/bin/escript
+ln -s ../lib/erlang/bin/run_erl $SE_DEB_PREFIX/usr/bin/run_erl
+ln -s ../lib/erlang/bin/start $SE_DEB_PREFIX/usr/bin/start_embedded
+ln -s ../lib/erlang/bin/to_erl $SE_DEB_PREFIX/usr/bin/to_erl
 
+dpkg-deb --build $SE_DEB_PREFIX
