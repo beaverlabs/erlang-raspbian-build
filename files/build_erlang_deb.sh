@@ -11,11 +11,15 @@ fi
 
 # 1. Download the erlang source code
 SE_ERLANG_RELEASE=$1
+SE_SHARED_DIR=/mnt/shared
+SE_DEB_DIR=$SE_SHARED_DIR/debs
+SE_DOWNLOAD_DIR=$SE_SHARED_DIR/downloads/erlang
+mkdir -p $SE_DOWNLOAD_DIR $SE_DEB_DIR
 SE_RELEASE_DIR=erlang-$SE_ERLANG_RELEASE
-SE_ERLANG_SOURCE_FILE="/tmp/otp_src_$SE_ERLANG_RELEASE.tar.gz"
+SE_ERLANG_SOURCE_FILE="$SE_DOWNLOAD_DIR/otp_src_$SE_ERLANG_RELEASE.tar.gz"
 
 if [[ -f "$SE_ERLANG_SOURCE_FILE" ]]; then
-  EXPECTED_MD5SUM=$(curl -s http://erlang.org/download/MD5 | grep "^MD5(otp_src_22.3.tar.gz)=" | awk -F =  '{gsub(/ /, "", $2); print$2}')
+  EXPECTED_MD5SUM=$(curl -s http://erlang.org/download/MD5 | grep "^MD5(otp_src_$SE_ERLANG_RELEASE.tar.gz)=" | awk -F =  '{gsub(/ /, "", $2); print$2}')
   ACTUAL_MD5SUM=$(md5sum $SE_ERLANG_SOURCE_FILE | awk '{print$1}')
 
   if [[ "$EXPECTED_MD5SUM" == "$ACTUAL_MD5SUM" ]]; then
@@ -30,9 +34,9 @@ fi
 
 # 2. Create a directory for building and configuration of Erlang release and unpack source.
 SE_TIMESTAMP=`date +%F_%H%M%S`
-SE_BUILD_DIR=stripped_erlang_$SE_TIMESTAMP
+SE_BUILD_DIR=/stripped_erlang_$SE_TIMESTAMP
 echo "Making build dir ${SE_BUILD_DIR}"
-mkdir $SE_BUILD_DIR
+mkdir -p $SE_BUILD_DIR
 echo "Unpacking source and moving into dir.."
 tar xfz $SE_ERLANG_SOURCE_FILE -C $SE_BUILD_DIR
 
@@ -64,14 +68,16 @@ echo "Removing unnecessary files and directories"
 rm -rf usr/
 rm -rf misc/
 for SE_DIR in erts* lib/*; do
-    rm -rf ${SE_DIR}/src
-    rm -rf ${SE_DIR}/include
     rm -rf ${SE_DIR}/doc
     rm -rf ${SE_DIR}/man
     rm -rf ${SE_DIR}/examples
     rm -rf ${SE_DIR}/emacs
+    # Comment out next three lines to keep header files
     rm -rf ${SE_DIR}/c_src
+    rm -rf ${SE_DIR}/src
+    rm -rf ${SE_DIR}/include
 done
+# Comment out to keep header files
 rm -rf erts-*/lib/
 echo "Build ready."
 
@@ -117,5 +123,7 @@ ln -s ../lib/erlang/bin/to_erl $SE_DEB_PREFIX/usr/bin/to_erl
 
 dpkg-deb --build $SE_DEB_PREFIX
 rm -rf $SE_DEB_PREFIX
+
+mv /erlang_$SE_ERLANG_RELEASE-1_armhf.deb $SE_DEB_DIR
 
 echo "Done."

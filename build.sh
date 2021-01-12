@@ -7,16 +7,12 @@ if [[ -z "$1" || -z "$2" || !($1 == "elixir" || $1 == "erlang") ]]; then
   exit 1;
 fi
 
-SE_CONTAINER_NAME=beaverlabs_build
+SE_CONTAINER_NAME=beaverlabs/erlixir
 
 if [[ "$1" == "elixir" ]]; then
-  lxc-attach -n $SE_CONTAINER_NAME /opt/build_elixir_deb.sh $2
-  cp $HOME/.local/share/lxc/$SE_CONTAINER_NAME/rootfs/elixir_$2-1_all.deb .
-  chown $USER:$USER elixir_$2-1_all.deb
+  docker run -it -v "$(pwd)/shared":/mnt/shared $SE_CONTAINER_NAME /build_elixir_deb.sh $2
 fi
 
 if [[ "$1" == "erlang" ]]; then
-  lxc-attach -n $SE_CONTAINER_NAME /opt/build_erlang_deb.sh $2
-  cp $HOME/.local/share/lxc/$SE_CONTAINER_NAME/rootfs/erlang_$2-1_armhf.deb .
-  chown $USER:$USER erlang_$2-1_armhf.deb
+  docker run -it -v "$(pwd)/shared":/mnt/shared $SE_CONTAINER_NAME /build_erlang_deb.sh $2
 fi

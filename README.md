@@ -9,9 +9,7 @@ binaries and remove unnecessary files to make a minimal, lightweight erlang rele
 
 ## Requirements
 
-To simplify the build process, we use LXC-based containers, which require Linux.
-To learn more on how to setup LXC containers, read the
-[Getting Started](https://linuxcontainers.org/lxc/getting-started/) guide.
+To simplify the build process, we use Docker containers.
 
 You may choose to use the build scripts available in `./files/` directly without
 containers, in that case please read the relevant section below.
@@ -22,8 +20,8 @@ First we setup the container:
 
 `$ ./setup.sh`
 
-This will create a new `debian-stretch-amd64` container, copy a few files and
-install the required dependencies to build erlang.
+This will build a new container image based on Debian Buster, copy a few files
+and install the required dependencies to build erlang.
 
 We can then run the desired build script:
 
@@ -32,14 +30,13 @@ $ ./build.sh erlang 22.3
 $ ./build.sh elixir 1.10.2
 ```
 
-The generated `.deb` files will be copied from the container to the current
-directory on the host.
+The generated `.deb` files will be available in `$PWD/shared/debs/` on the
+host.
 
-Once you are done and would like to stop the container:
+Once you are done and would like to remove the container image:
 
 ```
-$ ./teardown.sh # Stops the container but does not remove it
-$ ./teardown.sh destroy # Stops the container and removes it
+$ ./teardown.sh destroy # Removes the container image
 ```
 
 ## Using build scripts directly (without containers)

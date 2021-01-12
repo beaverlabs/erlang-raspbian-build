@@ -9,8 +9,12 @@ fi
 
 # 1. Download the elixir release
 SE_ELIXIR_RELEASE=$1
+SE_SHARED_DIR=/mnt/shared
+SE_DEB_DIR=$SE_SHARED_DIR/debs
+SE_DOWNLOAD_DIR=$SE_SHARED_DIR/downloads/elixir
+mkdir -p $SE_DOWNLOAD_DIR $SE_DEB_DIR
 SE_RELEASE_DIR=elixir-$SE_ELIXIR_RELEASE
-SE_ELIXIR_RELEASE_FILE="/tmp/elixir_release_$SE_ELIXIR_RELEASE.zip"
+SE_ELIXIR_RELEASE_FILE="$SE_DOWNLOAD_DIR/elixir_release_$SE_ELIXIR_RELEASE.zip"
 
 if [[ ! -f "$SE_ELIXIR_RELEASE_FILE" ]]; then
   wget -O $SE_ELIXIR_RELEASE_FILE "https://github.com/elixir-lang/elixir/releases/download/v$SE_ELIXIR_RELEASE/Precompiled.zip"
@@ -43,5 +47,7 @@ ln -s ../lib/elixir/bin/mix $SE_DEB_PREFIX/usr/bin/mix
 
 dpkg-deb --build $SE_DEB_PREFIX
 rm -rf $SE_DEB_PREFIX
+
+mv /elixir_$SE_ELIXIR_RELEASE-1_all.deb $SE_DEB_DIR
 
 echo "Done."
