@@ -104,7 +104,7 @@ EOF
 tee $SE_DEB_PREFIX/DEBIAN/postinst <<EOF
 #!/bin/sh
 set -e
-if [ "$1" = "configure" ]; then
+if [ "\$1" = "configure" ]; then
   /usr/lib/erlang/Install -sasl /usr/lib/erlang
   rm /usr/lib/erlang/Install
 fi
