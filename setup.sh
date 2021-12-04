@@ -3,9 +3,10 @@
 set -e
 
 SE_CONTAINER_NAME=beaverlabs/erlixir
-SE_CONTAINER_EXISTS=$(docker image ls | grep "^$SE_CONTAINER_NAME")
 
-if [[ "$SE_CONTAINER_EXISTS" != "$SE_CONTAINER_NAME" ]]; then
+if docker image ls | grep -q "^$SE_CONTAINER_NAME"; then
+  echo "Container already exists!"
+else
   echo "Creating container..."
   docker build -t $SE_CONTAINER_NAME .
 fi
