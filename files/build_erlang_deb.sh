@@ -112,6 +112,16 @@ EOF
 
 chmod +x $SE_DEB_PREFIX/DEBIAN/postinst
 
+tee $SE_DEB_PREFIX/DEBIAN/postrm <<EOF
+#!/bin/sh
+set -e
+if [ "\$1" = "remove" ]; then
+  rm -r /usr/lib/erlang/*
+fi
+EOF
+
+chmod +x $SE_DEB_PREFIX/DEBIAN/postrm
+
 ln -s ../lib/erlang/bin/epmd $SE_DEB_PREFIX/usr/bin/epmd
 ln -s ../lib/erlang/bin/erl $SE_DEB_PREFIX/usr/bin/erl
 ln -s ../lib/erlang/bin/erlc $SE_DEB_PREFIX/usr/bin/erlc
