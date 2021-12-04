@@ -19,7 +19,7 @@ SE_RELEASE_DIR=erlang-$SE_ERLANG_RELEASE
 SE_ERLANG_SOURCE_FILE="$SE_DOWNLOAD_DIR/otp_src_$SE_ERLANG_RELEASE.tar.gz"
 
 if [[ -f "$SE_ERLANG_SOURCE_FILE" ]]; then
-  EXPECTED_MD5SUM=$(curl -s http://erlang.org/download/MD5 | grep "^MD5(otp_src_$SE_ERLANG_RELEASE.tar.gz)=" | awk -F =  '{gsub(/ /, "", $2); print$2}')
+  EXPECTED_MD5SUM=$(curl -Ls https://github.com/erlang/otp/releases/download/OTP-$SE_ERLANG_RELEASE/MD5.txt | grep "otp_src_$SE_ERLANG_RELEASE.tar.gz" | awk '{print$1}')
   ACTUAL_MD5SUM=$(md5sum $SE_ERLANG_SOURCE_FILE | awk '{print$1}')
 
   if [[ "$EXPECTED_MD5SUM" == "$ACTUAL_MD5SUM" ]]; then
@@ -29,7 +29,7 @@ if [[ -f "$SE_ERLANG_SOURCE_FILE" ]]; then
     exit 1
   fi
 else
-  wget -O $SE_ERLANG_SOURCE_FILE "http://erlang.org/download/otp_src_$SE_ERLANG_RELEASE.tar.gz"
+  wget -O $SE_ERLANG_SOURCE_FILE "https://github.com/erlang/otp/releases/download/OTP-$SE_ERLANG_RELEASE/otp_src_$SE_ERLANG_RELEASE.tar.gz"
 fi
 
 # 2. Create a directory for building and configuration of Erlang release and unpack source.
