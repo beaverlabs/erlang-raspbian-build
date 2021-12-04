@@ -51,8 +51,8 @@ cd $SE_OTP_SOURCE_DIR_ABS
 export ERL_TOP=$SE_OTP_SOURCE_DIR_ABS
 ./configure --enable-bootstrap-only
 make -j8
-./configure CFLAGS="-Os" --host=arm-linux-gnueabihf --build=x86_64-linux-gnu \
-  erl_xcomp_sysroot=/ --with-ssl=/usr/include/arm-linux-gnueabihf/
+./configure CFLAGS="-Os" --host=arm-linux-gnueabihf --build=x86_64-linux-gnu erl_xcomp_sysroot=/ \
+  --with-ssl=/usr --with-ssl-incl=/usr --with-ssl-lib-subdir=/usr/lib/arm-linux-gnueabihf/
 make -j8
 make -j8 RELEASE_ROOT=$SE_BUILD_DIR_ABS/$SE_RELEASE_DIR release
 
