@@ -52,8 +52,7 @@ cd $SE_OTP_SOURCE_DIR_ABS
 export ERL_TOP=$SE_OTP_SOURCE_DIR_ABS
 ./configure --enable-bootstrap-only
 make -j8
-./configure CFLAGS="-Os -D_FILE_OFFSET_BITS=64" --host=arm-linux-gnueabihf --build=x86_64-linux-gnu erl_xcomp_sysroot=/ \
-  --with-ssl=/usr --with-ssl-incl=/usr --with-ssl-lib-subdir=/usr/lib/arm-linux-gnueabihf/
+./configure CFLAGS="-Os -D_FILE_OFFSET_BITS=64" --host=x86_64-linux-gnu --build=x86_64-linux-gnu erl_xcomp_sysroot=/
 make -j8
 make -j8 RELEASE_ROOT=$SE_BUILD_DIR_ABS/$SE_RELEASE_DIR release
 
@@ -62,7 +61,7 @@ erl -eval "beam_lib:strip_release('$SE_BUILD_DIR_ABS/$SE_RELEASE_DIR')" -s init 
 cd $SE_BUILD_DIR_ABS/$SE_RELEASE_DIR
 
 # 5. Strip binaries (using correct tool chain)
-arm-linux-gnueabihf-strip erts-*/bin/{beam.smp,ct_run,dialyzer,dyn_erl,epmd,erl_child_setup,erlc,erlc,erlexec,escript,heart,inet_gethost,run_erl,to_erl,typer}
+# arm-linux-gnueabihf-strip erts-*/bin/{beam.smp,ct_run,dialyzer,dyn_erl,epmd,erl_child_setup,erlc,erlc,erlexec,escript,heart,inet_gethost,run_erl,to_erl,typer}
 
 # 6. Remove crap (src, include, doc etc.)
 echo "Removing unnecessary files and directories"
@@ -85,7 +84,7 @@ echo "Build ready."
 # 9. Create .deb package
 
 cd ../..
-SE_DEB_PREFIX=erlang_$SE_ERLANG_RELEASE-1_armhf
+SE_DEB_PREFIX=erlang_$SE_ERLANG_RELEASE-1_amd64
 mkdir -p $SE_DEB_PREFIX/usr/lib/erlang
 mkdir -p $SE_DEB_PREFIX/usr/bin
 mkdir -p $SE_DEB_PREFIX/DEBIAN
@@ -97,7 +96,7 @@ Package: erlang
 Version: 1:$SE_ERLANG_RELEASE-1
 Section: interpreters
 Priority: optional
-Architecture: armhf
+Architecture: amd64
 Maintainer: Beaverlabs Team <support@beaverlabs.net>
 Description: Erlang OTP $SE_ERLANG_RELEASE for Raspbian
 EOF
@@ -135,6 +134,6 @@ ln -s ../lib/erlang/bin/to_erl $SE_DEB_PREFIX/usr/bin/to_erl
 dpkg-deb --build $SE_DEB_PREFIX
 rm -rf $SE_DEB_PREFIX
 
-mv /erlang_$SE_ERLANG_RELEASE-1_armhf.deb $SE_DEB_DIR/erlang-$SE_ERLANG_RELEASE-$SE_TARGET-1_armhf.deb
+mv /erlang_$SE_ERLANG_RELEASE-1_amd64.deb $SE_DEB_DIR/erlang-$SE_ERLANG_RELEASE-$SE_TARGET-1_amd64.deb
 
 echo "Done."

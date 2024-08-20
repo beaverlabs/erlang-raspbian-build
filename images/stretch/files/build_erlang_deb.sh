@@ -4,14 +4,13 @@
 
 set -e
 
-if [[ -z "$1" || -z "$2" ]]; then
-  echo "usage: ./build_erlang_deb.sh <target> <release>"
+if [[ -z "$1" ]]; then
+  echo "usage: ./build_erlang_deb.sh <release>"
   exit 1;
 fi
 
 # 1. Download the erlang source code
-SE_TARGET=$1
-SE_ERLANG_RELEASE=$2
+SE_ERLANG_RELEASE=$1
 SE_SHARED_DIR=/mnt/shared
 SE_DEB_DIR=$SE_SHARED_DIR/debs
 SE_DOWNLOAD_DIR=$SE_SHARED_DIR/downloads/erlang
@@ -135,6 +134,6 @@ ln -s ../lib/erlang/bin/to_erl $SE_DEB_PREFIX/usr/bin/to_erl
 dpkg-deb --build $SE_DEB_PREFIX
 rm -rf $SE_DEB_PREFIX
 
-mv /erlang_$SE_ERLANG_RELEASE-1_armhf.deb $SE_DEB_DIR/erlang-$SE_ERLANG_RELEASE-$SE_TARGET-1_armhf.deb
+mv /erlang_$SE_ERLANG_RELEASE-1_armhf.deb $SE_DEB_DIR
 
 echo "Done."

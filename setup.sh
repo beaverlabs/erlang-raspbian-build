@@ -2,13 +2,19 @@
 
 set -e
 
-SE_CONTAINER_NAME=beaverlabs/erlixir
+if [[ -z "$1" ]]; then
+  echo "usage: ./setup.sh TARGET"
+  exit 1;
+fi
 
-if docker image ls | grep -q "^$SE_CONTAINER_NAME"; then
-  echo "Container already exists!"
+TARGET=$1
+IMAGE_NAME=beaverlabs/erlixir:$1
+
+if docker image ls | grep -q "^$IMAGE_NAME"; then
+  echo "$IMAGE_NAME: Image already exists!"
 else
-  echo "Creating container..."
-  docker build -t $SE_CONTAINER_NAME .
+  echo "Creating image $IMAGE_NAME..."
+  docker build -t $IMAGE_NAME images/$1
 fi
 
 echo "Done!"

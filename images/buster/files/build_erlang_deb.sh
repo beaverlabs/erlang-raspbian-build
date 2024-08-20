@@ -74,18 +74,24 @@ for SE_DIR in erts* lib/*; do
     rm -rf ${SE_DIR}/examples
     rm -rf ${SE_DIR}/emacs
     # Comment out next three lines to keep header files
-    rm -rf ${SE_DIR}/c_src
-    rm -rf ${SE_DIR}/src
-    rm -rf ${SE_DIR}/include
+    # rm -rf ${SE_DIR}/c_src
+    # rm -rf ${SE_DIR}/src
+    # rm -rf ${SE_DIR}/include
 done
 # Comment out to keep header files
-rm -rf erts-*/lib/
+# rm -rf erts-*/lib/
 echo "Build ready."
 
 # 9. Create .deb package
 
-cd ../..
+# Copy include files
 SE_DEB_PREFIX=erlang_$SE_ERLANG_RELEASE-1_armhf
+mkdir -p ../../$SE_DEB_PREFIX/usr/lib/erlang/include
+for SE_DIR in $(find erts*/include lib/*/include | grep ".h$"); do
+  mv ${SE_DIR} ../../$SE_DEB_PREFIX/usr/lib/erlang/include
+done
+
+cd ../..
 mkdir -p $SE_DEB_PREFIX/usr/lib/erlang
 mkdir -p $SE_DEB_PREFIX/usr/bin
 mkdir -p $SE_DEB_PREFIX/DEBIAN
